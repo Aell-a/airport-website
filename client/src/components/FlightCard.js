@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { PlaneTakeoff, PlaneLanding } from "lucide-react";
 
-export default function FlightCard({ flight, onBookFlight }) {
+export default function FlightCard({ flight, onSave }) {
   return (
     <Card className="mb-6 bg-white/90 shadow-md rounded-xl overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
       <CardContent className="flex justify-between items-center p-6">
@@ -59,10 +59,14 @@ export default function FlightCard({ flight, onBookFlight }) {
       </CardContent>
       <CardFooter className="bg-gray-50 border-t border-gray-100">
         <Button
-          onClick={() => onBookFlight(flight)}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white transition duration-300 ease-in-out transform hover:scale-105"
+          onClick={() => onSave(flight)}
+          className={`w-full ${
+            flight.saved
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-purple-600 hover:bg-purple-700"
+          } text-white transition duration-300 ease-in-out transform hover:scale-105`}
         >
-          Book Flight
+          {flight.saved ? "Unsave" : "Save"}
         </Button>
       </CardFooter>
     </Card>

@@ -1,49 +1,36 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import Navbar from "@/components/Navbar";
+import { useState, useMemo } from "react";
 import FlightSearchForm from "@/components/FlightSearchForm";
 import FlightList from "@/components/FlightList";
 import AuthPopup from "@/components/AuthPopup";
-import ProfilePage from "@/components/ProfilePage";
-import {
-  getUser,
-  login,
-  searchFlights,
-  signup,
-  updateProfile,
-} from "@/lib/api";
+import { saveFlight, searchFlights, unsaveFlight } from "@/lib/api";
 import { airlineData } from "@/data/airlines";
 import bg from "../app/public/background.jpg";
+import { useAuth } from "@/lib/auth";
 
 export default function FlightSearchApp() {
   const [flights, setFlights] = useState([]);
   const [sortBy, setSortBy] = useState("recommended");
   const [isLoading, setIsLoading] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const [showProfilePage, setShowProfilePage] = useState(false);
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token && !user) {
-      checkAuth();
-    }
-  }, [user, setUser]);
+  const { user, login, signup } = useAuth();
 
   const handleSearch = async (airport, date, isArriving) => {
     setIsLoading(true);
     try {
       const response = await searchFlights(airport, date, isArriving);
-      console.log(response.data);
       if (response.data) {
         const data = response.data.flights.map((flight) => ({
+          id: flight.id,
           flightNumber: flight.flightName,
           airline: getAirline(flight.prefixIATA),
           time: flight.scheduleTime.slice(0, 5),
           isArriving: flight.flightDirection === "A" ? true : false,
           otherAirport: flight.route.destinations[0],
           price: Math.round(Math.random() * 100) + 100,
+          saved: false,
         }));
 
         setFlights(data);
@@ -84,95 +71,46 @@ export default function FlightSearchApp() {
     return airline ? airline.name : "Unknown";
   };
 
-  const checkAuth = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
+  const handleSaveFlight = async (flight) => {
+    if (!user) {
+      setShowAuthPopup(true);
+    } else {
+      const token = localStorage.getItem("token");
+      console.log(token);
+      const updatedFlight = { ...flight, saved: !flight.saved };
+      const flightId = updatedFlight.id;
+
       try {
-        const response = await getUser(token);
-        setUser(response.data.userId);
-        setShowAuthPopup(false);
+        const response = updatedFlight.saved
+          ? await saveFlight(flightId, token)
+          : await unsaveFlight(flightId, token);
+        if (response.status === 200) {
+          setFlights((prevFlights) =>
+            prevFlights.map((f) =>
+              f.flightNumber === flight.flightNumber ? updatedFlight : f
+            )
+          );
+        } else {
+          return;
+        }
       } catch (error) {
-        console.error("Matching ID cannot be found");
-      }
-    }
-  };
-
-  const handleLogin = async (email, password) => {
-    try {
-      const response = await login(email, password);
-      setUser(response.data.userId);
-      localStorage.setItem("token", response.data.token);
-      setShowAuthPopup(false);
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed. Please try again.");
-    }
-  };
-
-  const handleSignup = async (email, password) => {
-    try {
-      const response = await signup(email, password);
-      setUser(response.data.userId);
-      localStorage.setItem("token", response.data.token);
-      setShowAuthPopup(false);
-    } catch (error) {
-      console.error("Signup error:", error);
-      alert("Signup failed. Please try again.");
-    }
-  };
-
-  const handleUpdateProfile = async (updatedUser) => {
-    try {
-      const response = await updateProfile(updatedUser);
-      // setShowProfilePage(false);
-    } catch (error) {
-      console.error("Profile update error:", error);
-      alert("Profile update failed. Please try again.");
-    }
-  };
-
-  const handleAuthAction = () => {
-    if (!user) {
-      setShowAuthPopup(true);
-    } else {
-      setShowProfilePage(true);
-    }
-  };
-
-  const handleBookFlight = async (flight) => {
-    if (!user) {
-      setShowAuthPopup(true);
-    } else {
-      try {
-        await api.post(
-          "/flights/book",
-          { flightId: flight.id },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+        console.error("Error saving flight:", error);
+        setFlights((prevFlights) =>
+          prevFlights.map((f) =>
+            f.flightNumber === flight.flightNumber ? flight : f
+          )
         );
-        alert("Flight booked successfully!");
-      } catch (error) {
-        console.error("Booking error:", error);
-        alert("Booking failed. Please try again.");
       }
     }
   };
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center"
+      className="flex-grow bg-cover bg-center h-screen"
       style={{ backgroundImage: `url(${bg.src})` }}
     >
-      <div className="min-h-screen bg-white/80 backdrop-blur-sm">
-        <Navbar
-          onMyFlights={handleAuthAction}
-          onProfileClick={handleAuthAction}
-          user={user}
-        />
-        <main className="container mx-auto px-4 pb-12">
+      <div className="min-h-full bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-8">
           <FlightSearchForm onSearch={handleSearch} isLoading={isLoading} />
           {flights.length > 0 && (
             <FlightList
@@ -180,22 +118,15 @@ export default function FlightSearchApp() {
               sortBy={sortBy}
               onSortChange={setSortBy}
               isLoading={isLoading}
-              onBookFlight={handleBookFlight}
+              onSave={handleSaveFlight}
             />
           )}
-        </main>
+        </div>
         {showAuthPopup && (
           <AuthPopup
             onClose={() => setShowAuthPopup(false)}
-            onLogin={handleLogin}
-            onSignup={handleSignup}
-          />
-        )}
-        {showProfilePage && user && (
-          <ProfilePage
-            user={user}
-            onClose={() => setShowProfilePage(false)}
-            onUpdate={handleUpdateProfile}
+            onLogin={login}
+            onSignup={signup}
           />
         )}
       </div>

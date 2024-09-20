@@ -14,7 +14,7 @@ export default function FlightList({
   sortBy,
   onSortChange,
   isLoading,
-  onBookFlight,
+  onSave,
 }) {
   return (
     <div className="mt-12 w-full max-w-4xl mx-auto">
@@ -42,7 +42,7 @@ export default function FlightList({
         </div>
       ) : (
         flights.map((flight, index) => (
-          <FlightCard key={index} flight={flight} onBookFlight={onBookFlight} />
+          <FlightCard key={index} flight={flight} onSave={onSave} />
         ))
       )}
     </div>

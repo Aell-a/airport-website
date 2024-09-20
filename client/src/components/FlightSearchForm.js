@@ -12,46 +12,11 @@ import {
   PlaneLanding,
 } from "lucide-react";
 import PlaneAnimation from "./PlaneAnimation";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import { debounce } from "@/lib/utils";
-import { destinations } from "@/lib/api";
 
 export default function FlightSearchForm({ onSearch, isLoading }) {
   const [isArriving, setIsArriving] = useState(false);
   const [airport, setAirport] = useState("");
   const [date, setDate] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  /*   const debouncedSearch = useCallback(
-    debounce(async (searchTerm) => {
-      if (searchTerm.length > 1) {
-        try {
-          const response = await destinations(searchTerm);
-          setSuggestions(response.data);
-        } catch (error) {
-          console.error("Error fetching destinations:", error);
-          setSuggestions([]);
-        }
-      } else {
-        setSuggestions([]);
-      }
-    }, 500),
-    []
-  );
-
-  useEffect(() => {
-    debouncedSearch(airport);
-  }, [airport, debouncedSearch]); */
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,7 +32,8 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
               id="flightDirection"
               checked={isArriving}
               onCheckedChange={setIsArriving}
-            />
+              className="bg-[hsl(var(--switch-unchecked))] data-[state=checked]:bg-[hsl(var(--switch-checked))]"
+            ></Switch>
             <Label
               htmlFor="flightDirection"
               className="text-sm font-medium text-gray-700"

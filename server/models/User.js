@@ -1,16 +1,5 @@
 const mongoose = require("mongoose");
 
-const FlightSchema = new mongoose.Schema({
-  flightData: {
-    type: Object,
-    required: true,
-  },
-  savedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -26,7 +15,7 @@ const UserSchema = new mongoose.Schema({
     default: Date.now,
   },
   flights: {
-    type: [FlightSchema],
+    type: [String],
     default: [],
   },
 });
