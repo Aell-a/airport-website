@@ -76,13 +76,11 @@ export default function FlightSearchApp() {
       setShowAuthPopup(true);
     } else {
       const token = localStorage.getItem("token");
-      console.log(token);
       const updatedFlight = { ...flight, saved: !flight.saved };
       const flightId = updatedFlight.id;
-
       try {
         const response = updatedFlight.saved
-          ? await saveFlight(flightId, token)
+          ? await saveFlight(updatedFlight, token)
           : await unsaveFlight(flightId, token);
         if (response.status === 200) {
           setFlights((prevFlights) =>

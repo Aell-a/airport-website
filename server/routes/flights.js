@@ -33,7 +33,7 @@ router.get("/search", async (req, res) => {
 router.post("/save", async (req, res) => {
   try {
     const token = req.body.token;
-    const flightId = req.body.flightId;
+    const flight = req.body.flightData;
     if (!token) {
       return res.status(401).json({ msg: "No token, authorization denied" });
     }
@@ -42,10 +42,7 @@ router.post("/save", async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    if (!flightId) {
-      return res.status(400).json({ msg: "Flight ID is required" });
-    }
-    user.flights.push(flightId);
+    user.flights.push(flight);
     await user.save();
     res.status(200).send("Flight saved");
   } catch (err) {
@@ -69,7 +66,7 @@ router.post("/unsave", async (req, res) => {
     if (!flightId) {
       return res.status(400).json({ msg: "Flight ID is required" });
     }
-    const filteredArray = user.flights.filter((f) => f !== flightId);
+    const filteredArray = user.flights.filter((f) => f.id !== flightId);
     user.flights = filteredArray;
     await user.save();
     res.status(200).send("Flight saved");
@@ -79,15 +76,19 @@ router.post("/unsave", async (req, res) => {
   }
 });
 
-// Get saved flights for a user
 router.get("/saved", async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).send("User not found");
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.status(401).json({ msg: "No token, authorization denied" });
     }
-
-    res.json(user.flights);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.user.id).select("-password");
+    if (user.flights) {
+      res.json(user.flights);
+    } else {
+      res.status(200).send("No saved flights");
+    }
   } catch (err) {
     console.error("Error fetching saved flights:", err);
     res.status(500).send("Error fetching saved flights");

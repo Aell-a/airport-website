@@ -22,7 +22,13 @@ export const searchFlights = (airport, date, isArriving) =>
       direction: isArriving ? "A" : "D",
     },
   });
-export const saveFlight = (flightId, token) =>
-  api.post("/flights/save", { token, flightId });
+export const saveFlight = (flightData, token) =>
+  api.post("/flights/save", { token, flightData });
 export const unsaveFlight = (flightId, token) =>
   api.post("/flights/unsave", { token, flightId });
+export const userFlights = (token) =>
+  api.get("/flights/saved", {
+    headers: {
+      "x-auth-token": token,
+    },
+  });

@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
     default: Date.now,
   },
   flights: {
-    type: [String],
+    type: [Object],
     default: [],
   },
 });
