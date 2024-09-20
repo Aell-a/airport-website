@@ -25,48 +25,33 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { debounce } from "@/lib/utils";
+import { destinations } from "@/lib/api";
 
 export default function FlightSearchForm({ onSearch, isLoading }) {
   const [isArriving, setIsArriving] = useState(false);
   const [airport, setAirport] = useState("");
   const [date, setDate] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-
-  const debouncedSearch = useCallback(
-    debounce((searchTerm) => {
-      // TODO: Replace with actual API call
-      const mockSuggestions = [
-        {
-          code: "JFK",
-          name: "John F. Kennedy International Airport",
-          city: "New York",
-        },
-        {
-          code: "LAX",
-          name: "Los Angeles International Airport",
-          city: "Los Angeles",
-        },
-        { code: "ORD", name: "O'Hare International Airport", city: "Chicago" },
-        { code: "LHR", name: "London Heathrow Airport", city: "London" },
-        { code: "CDG", name: "Charles de Gaulle Airport", city: "Paris" },
-      ].filter(
-        (airport) =>
-          airport.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          airport.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          airport.city.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setSuggestions(mockSuggestions);
+  /*   const debouncedSearch = useCallback(
+    debounce(async (searchTerm) => {
+      if (searchTerm.length > 1) {
+        try {
+          const response = await destinations(searchTerm);
+          setSuggestions(response.data);
+        } catch (error) {
+          console.error("Error fetching destinations:", error);
+          setSuggestions([]);
+        }
+      } else {
+        setSuggestions([]);
+      }
     }, 500),
     []
   );
 
   useEffect(() => {
-    if (airport.length > 1) {
-      debouncedSearch(airport);
-    } else {
-      setSuggestions([]);
-    }
-  }, [airport, debouncedSearch]);
+    debouncedSearch(airport);
+  }, [airport, debouncedSearch]); */
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -103,44 +88,19 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
           >
             Airport
           </Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <div className="relative">
-                <Plane
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={18}
-                />
-                <Input
-                  id="airport"
-                  value={airport}
-                  onChange={(e) => setAirport(e.target.value)}
-                  placeholder="Search airports"
-                  className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                />
-              </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
-              <Command>
-                <CommandInput placeholder="Search airports" />
-                <CommandEmpty>No airports found.</CommandEmpty>
-                <CommandGroup>
-                  {suggestions.map((airport) => (
-                    <CommandItem
-                      key={airport.code}
-                      onSelect={() => {
-                        setAirport(airport.code);
-                        setSuggestions([]);
-                      }}
-                    >
-                      <span>
-                        {airport.code} - {airport.name}, {airport.city}
-                      </span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <div className="relative">
+            <Plane
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <Input
+              id="airport"
+              value={airport}
+              onChange={(e) => setAirport(e.target.value)}
+              placeholder="Search airports"
+              className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="date" className="text-sm font-medium text-gray-700">

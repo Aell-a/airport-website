@@ -8,29 +8,47 @@ export default function FlightCard({ flight, onBookFlight }) {
       <CardContent className="flex justify-between items-center p-6">
         <div className="flex items-center space-x-8">
           <div className="text-center">
-            <p className="font-bold text-xl text-gray-800">{flight.time}</p>
-            <p className="text-sm text-gray-600">
-              {flight.isArriving ? "Arrives" : "Departs"}
-            </p>
+            {flight.isArriving ? (
+              <>
+                <p className="text-sm text-gray-600">From</p>
+                <p className="font-bold text-xl text-gray-800">
+                  {flight.otherAirport}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600">From</p>
+                <p className="font-bold text-xl text-gray-800">AMS</p>
+              </>
+            )}
           </div>
           <div className="flex flex-col items-center">
             <p className="text-sm text-gray-500">{flight.flightTime}</p>
-            <div className="w-32 h-px bg-gray-300 my-2 relative">
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-purple-500 rounded-full"></div>
+            <div className="w-64 h-px bg-gray-300 my-2 relative">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8">
+                {flight.isArriving ? (
+                  <PlaneLanding className="text-purple-500" size={30} />
+                ) : (
+                  <PlaneTakeoff className="text-purple-500" size={30} />
+                )}
+              </div>
             </div>
-            {flight.isArriving ? (
-              <PlaneLanding className="text-purple-500" size={20} />
-            ) : (
-              <PlaneTakeoff className="text-purple-500" size={20} />
-            )}
+            <p className="font-bold text-xl text-gray-800">{flight.time}</p>
           </div>
           <div className="text-center">
-            <p className="font-bold text-xl text-gray-800">
-              {flight.otherAirport}
-            </p>
-            <p className="text-sm text-gray-600">
-              {flight.isArriving ? "From" : "To"}
-            </p>
+            {flight.isArriving ? (
+              <>
+                <p className="text-sm text-gray-600">To</p>
+                <p className="font-bold text-xl text-gray-800">AMS</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600">To</p>
+                <p className="font-bold text-xl text-gray-800">
+                  {flight.otherAirport}
+                </p>
+              </>
+            )}
           </div>
         </div>
         <div className="text-right">

@@ -31,8 +31,7 @@ export default function FlightList({
             <SelectContent>
               <SelectItem value="recommended">Recommended</SelectItem>
               <SelectItem value="price">Lowest Price</SelectItem>
-              <SelectItem value="duration">Shortest Duration</SelectItem>
-              <SelectItem value="time">Flight Time</SelectItem>
+              <SelectItem value="time">Departure Time</SelectItem>
             </SelectContent>
           </Select>
         </div>

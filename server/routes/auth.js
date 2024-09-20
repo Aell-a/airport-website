@@ -7,12 +7,12 @@ const User = require("../models/User");
 // Register user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ msg: "User already exists" });
     }
-    user = new User({ name, email, password });
+    user = new User({ email, password });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();
@@ -20,10 +20,11 @@ router.post("/register", async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn: "7d" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        const userId = user._id.toString();
+        res.json({ token, userId: userId });
       }
     );
   } catch (err) {
@@ -48,15 +49,35 @@ router.post("/login", async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn: "7d" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, email });
+        const userId = user._id.toString();
+        res.json({ token, userId: userId });
       }
     );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
+  }
+});
+
+router.get("/user", async (req, res) => {
+  try {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.status(401).json({ msg: "No token, authorization denied" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    const userId = user._id.toString();
+    res.json({ userId });
+  } catch (err) {
+    console.error(err.message);
+    res.status(401).json({ msg: "Token is not valid" });
   }
 });
 

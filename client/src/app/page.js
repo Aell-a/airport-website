@@ -6,7 +6,15 @@ import FlightSearchForm from "@/components/FlightSearchForm";
 import FlightList from "@/components/FlightList";
 import AuthPopup from "@/components/AuthPopup";
 import ProfilePage from "@/components/ProfilePage";
-import { login, signup, updateProfile } from "@/lib/api";
+import {
+  getUser,
+  login,
+  searchFlights,
+  signup,
+  updateProfile,
+} from "@/lib/api";
+import { airlineData } from "@/data/airlines";
+import bg from "../app/public/background.jpg";
 
 export default function FlightSearchApp() {
   const [flights, setFlights] = useState([]);
@@ -17,62 +25,38 @@ export default function FlightSearchApp() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    const token = localStorage.getItem("token");
+    if (token && !user) {
+      checkAuth();
+    }
+  }, [user, setUser]);
 
-  const handleSearch = (airport, date, isArriving) => {
+  const handleSearch = async (airport, date, isArriving) => {
     setIsLoading(true);
-    // TODO: Implement actual API call here
-    setTimeout(() => {
-      setFlights([
-        {
-          flightNumber: "FL123",
-          airline: "SkyQuest Airways",
-          time: "06:00 AM",
-          otherAirport: "JFK",
-          flightTime: "2h 30m",
-          price: 299,
-          isArriving: isArriving,
-        },
-        {
-          flightNumber: "FL456",
-          airline: "Ocean Air",
-          time: "09:15 AM",
-          otherAirport: "LAX",
-          flightTime: "5h 30m",
-          price: 349,
-          isArriving: isArriving,
-        },
-        {
-          flightNumber: "FL789",
-          airline: "Mountain Express",
-          time: "11:30 AM",
-          otherAirport: "ORD",
-          flightTime: "3h 15m",
-          price: 279,
-          isArriving: isArriving,
-        },
-        {
-          flightNumber: "FL101",
-          airline: "Sunshine Airlines",
-          time: "2:00 PM",
-          otherAirport: "MIA",
-          flightTime: "3h 45m",
-          price: 199,
-          isArriving: isArriving,
-        },
-        {
-          flightNumber: "FL202",
-          airline: "Northern Lights Air",
-          time: "4:30 PM",
-          otherAirport: "SEA",
-          flightTime: "4h 15m",
-          price: 329,
-          isArriving: isArriving,
-        },
-      ]);
+    try {
+      const response = await searchFlights(airport, date, isArriving);
+      console.log(response.data);
+      if (response.data) {
+        const data = response.data.flights.map((flight) => ({
+          flightNumber: flight.flightName,
+          airline: getAirline(flight.prefixIATA),
+          time: flight.scheduleTime.slice(0, 5),
+          isArriving: flight.flightDirection === "A" ? true : false,
+          otherAirport: flight.route.destinations[0],
+          price: Math.round(Math.random() * 100) + 100,
+        }));
+
+        setFlights(data);
+        setIsLoading(false);
+      } else {
+        console.error("Flights not found");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      alert("Search failed. Please try again.");
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const sortedFlights = useMemo(() => {
@@ -80,21 +64,13 @@ export default function FlightSearchApp() {
     switch (sortBy) {
       case "price":
         return flightsCopy.sort((a, b) => a.price - b.price);
-      case "duration":
-        return flightsCopy.sort((a, b) => {
-          const getDuration = (flight) => {
-            const [hours, minutes] = flight.flightTime.split("h ");
-            return parseInt(hours) * 60 + parseInt(minutes);
-          };
-          return getDuration(a) - getDuration(b);
-        });
       case "time":
         return flightsCopy.sort((a, b) => {
           return (
             new Date("1970/01/01 " + a.time) - new Date("1970/01/01 " + b.time)
           );
         });
-      default: // 'recommended' - sort by time
+      default:
         return flightsCopy.sort((a, b) => {
           return (
             new Date("1970/01/01 " + a.time) - new Date("1970/01/01 " + b.time)
@@ -103,17 +79,20 @@ export default function FlightSearchApp() {
     }
   }, [flights, sortBy]);
 
+  const getAirline = (code) => {
+    const airline = airlineData.find((airline) => airline.iata === code);
+    return airline ? airline.name : "Unknown";
+  };
+
   const checkAuth = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await api.get("/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data);
+        const response = await getUser(token);
+        setUser(response.data.userId);
+        setShowAuthPopup(false);
       } catch (error) {
-        console.error("Auth check error:", error);
-        localStorage.removeItem("token");
+        console.error("Matching ID cannot be found");
       }
     }
   };
@@ -121,8 +100,7 @@ export default function FlightSearchApp() {
   const handleLogin = async (email, password) => {
     try {
       const response = await login(email, password);
-      console.log(response);
-      setUser(response.data.email);
+      setUser(response.data.userId);
       localStorage.setItem("token", response.data.token);
       setShowAuthPopup(false);
     } catch (error) {
@@ -134,8 +112,7 @@ export default function FlightSearchApp() {
   const handleSignup = async (email, password) => {
     try {
       const response = await signup(email, password);
-      console.log(response);
-      setUser(response.data.token);
+      setUser(response.data.userId);
       localStorage.setItem("token", response.data.token);
       setShowAuthPopup(false);
     } catch (error) {
@@ -147,8 +124,7 @@ export default function FlightSearchApp() {
   const handleUpdateProfile = async (updatedUser) => {
     try {
       const response = await updateProfile(updatedUser);
-      setUser(response.data);
-      setShowProfilePage(false);
+      // setShowProfilePage(false);
     } catch (error) {
       console.error("Profile update error:", error);
       alert("Profile update failed. Please try again.");
@@ -188,7 +164,7 @@ export default function FlightSearchApp() {
   return (
     <div
       className="min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('../public/background.jpg')" }}
+      style={{ backgroundImage: `url(${bg.src})` }}
     >
       <div className="min-h-screen bg-white/80 backdrop-blur-sm">
         <Navbar
@@ -198,13 +174,15 @@ export default function FlightSearchApp() {
         />
         <main className="container mx-auto px-4 pb-12">
           <FlightSearchForm onSearch={handleSearch} isLoading={isLoading} />
-          <FlightList
-            flights={sortedFlights}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            isLoading={isLoading}
-            onBookFlight={handleBookFlight}
-          />
+          {flights.length > 0 && (
+            <FlightList
+              flights={sortedFlights}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              isLoading={isLoading}
+              onBookFlight={handleBookFlight}
+            />
+          )}
         </main>
         {showAuthPopup && (
           <AuthPopup
