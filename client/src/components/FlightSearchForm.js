@@ -4,23 +4,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
 import {
-  Calendar,
   Plane,
   Search,
   PlaneTakeoff,
   PlaneLanding,
+  CalendarIcon,
 } from "lucide-react";
 import PlaneAnimation from "./PlaneAnimation";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import AirportSearch from "./AirportSearch";
 
 export default function FlightSearchForm({ onSearch, isLoading }) {
   const [isArriving, setIsArriving] = useState(false);
   const [airport, setAirport] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [isPicking, setIsPicking] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(airport);
     onSearch(airport, date, isArriving);
+  };
+
+  const handleDateSelect = (selectedDate) => {
+    setDate(selectedDate);
+    setIsPicking(false);
+  };
+
+  const handleAirportSelect = (selectedAirport) => {
+    setAirport(selectedAirport);
   };
 
   return (
@@ -55,7 +71,7 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
             Airport
           </Label>
           <div className="relative">
-            <Plane
+            {/*             <Plane
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               size={18}
             />
@@ -63,27 +79,40 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
               id="airport"
               value={airport}
               onChange={(e) => setAirport(e.target.value)}
-              placeholder="Search airports"
+              placeholder="Search airports by IATA code"
               className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            />
+            /> */}
+            <AirportSearch onSelect={handleAirportSelect} />
           </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="date" className="text-sm font-medium text-gray-700">
             Date
           </Label>
-          <div className="relative">
-            <Calendar
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            />
+          <div className="relative w-full max-w-sm">
+            <Popover open={isPicking} onOpenChange={setIsPicking}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={handleDateSelect}
+                  initialFocus
+                  fromDate={new Date()}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <Button

@@ -20,7 +20,11 @@ export default function FlightSearchApp() {
   const handleSearch = async (airport, date, isArriving) => {
     setIsLoading(true);
     try {
-      const response = await searchFlights(airport, date, isArriving);
+      const response = await searchFlights(
+        airport,
+        date.toISOString().slice(0, 10),
+        isArriving
+      );
       if (response.data) {
         const data = response.data.flights.map((flight) => ({
           id: flight.id,
