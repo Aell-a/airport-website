@@ -20,6 +20,8 @@ export const metadata = {
   description: "Flight scanner for Amsterdam Schiphol",
 };
 
+// Our default layout is made of shadCN function wrapping the AuthProvider we set up that handles auth process. On lower level we have the navbar which we use to navigate and the page information.
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">

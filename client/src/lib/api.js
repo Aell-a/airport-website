@@ -1,5 +1,7 @@
 import axios from "axios";
 
+// Our API middleware where we handle the requests made from frontend and send them into the NodeJS server in a proper format.
+
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
 });

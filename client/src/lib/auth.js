@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { getUser, login, signup } from "@/lib/api";
 
+// Our auth middleware uses useContext hook from React and handles authentication in a way that is shared across all app.
+
 const AuthContext = createContext();
 
 const initialState = {
@@ -35,7 +37,7 @@ export function AuthProvider({ children }) {
     if (token && !state.user) {
       checkAuth();
     }
-  }, []);
+  }, [state.user]);
 
   const checkAuth = async () => {
     dispatch({ type: "LOADING" });

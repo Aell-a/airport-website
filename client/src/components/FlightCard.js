@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { PlaneTakeoff, PlaneLanding } from "lucide-react";
 
+// Basic flight card component that displays flight information from the data it recieves.
+
 export default function FlightCard({ flight, onSave }) {
   return (
     <Card className="mb-6 bg-white/90 shadow-md rounded-xl overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">

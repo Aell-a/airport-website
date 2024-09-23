@@ -9,6 +9,8 @@ import {
 import { Loader2Icon } from "lucide-react";
 import FlightCard from "./FlightCard";
 
+// Flight list component maps incoming data to individual FlightCard components and also has the flight sorting functionality.
+
 export default function FlightList({
   flights,
   sortBy,

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 
 const data = require("../data/airportData.json");
 
+// This component handles the autosuggestion of airports based on user input.
+
 export default function AirportSearch({ onSelect }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);

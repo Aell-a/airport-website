@@ -1,5 +1,7 @@
 import { PlaneIcon } from "lucide-react";
 
+// Just a small animation on search button.
+
 export default function PlaneAnimation() {
   return (
     <div className="relative w-16 h-8">

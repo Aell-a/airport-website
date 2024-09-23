@@ -21,6 +21,9 @@ export default function Navbar() {
     setShowAuthPopup(false);
   };
 
+  // Navbar component handles with routing in our website.
+  // This component is where we render the AuthPopup as needed since navbar is shared across the whole app.
+
   return (
     <nav className="flex justify-between items-center p-6 bg-gradient-to-r from-purple-900 to-purple-800 w-full">
       <Link href="/">

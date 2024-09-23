@@ -58,6 +58,8 @@ export default function ProfilePage() {
     }
   };
 
+  // Profile page or "my flights" page reuses the sortedFlights and handleSaveFlight functions and renders users' saved flights on the screen.
+
   return (
     <div
       className="flex-grow bg-cover bg-center h-screen "

@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import AirportSearch from "./AirportSearch";
 
+// Our search box component has a autosuggestion powered airport search, shadCN datepicker and a switch to adjust departing or arriving flights.
+
 export default function FlightSearchForm({ onSearch, isLoading }) {
   const [isArriving, setIsArriving] = useState(false);
   const [airport, setAirport] = useState("");
@@ -26,7 +28,6 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(airport);
     onSearch(airport, date, isArriving);
   };
 
@@ -71,17 +72,6 @@ export default function FlightSearchForm({ onSearch, isLoading }) {
             Airport
           </Label>
           <div className="relative">
-            {/*             <Plane
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <Input
-              id="airport"
-              value={airport}
-              onChange={(e) => setAirport(e.target.value)}
-              placeholder="Search airports by IATA code"
-              className="pl-10 bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            /> */}
             <AirportSearch onSelect={handleAirportSelect} />
           </div>
         </div>

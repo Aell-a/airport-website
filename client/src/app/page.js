@@ -17,6 +17,7 @@ export default function FlightSearchApp() {
 
   const { user, login, signup } = useAuth();
 
+  // handleSearch does the api call with the user inputs coming from FlightSearchForm component and maps the incoming flight data.
   const handleSearch = async (airport, date, isArriving) => {
     setIsLoading(true);
     try {
@@ -50,6 +51,7 @@ export default function FlightSearchApp() {
     }
   };
 
+  // sortedFlights sorts the flights based on price or departure time.
   const sortedFlights = useMemo(() => {
     const flightsCopy = [...flights];
     switch (sortBy) {
@@ -70,11 +72,13 @@ export default function FlightSearchApp() {
     }
   }, [flights, sortBy]);
 
+  // getAirline finds the airline's actual name from the airlines.js file from the IATA code that gets sent by API.
   const getAirline = (code) => {
     const airline = airlineData.find((airline) => airline.iata === code);
     return airline ? airline.name : "Unknown";
   };
 
+  // handleSaveFlight changes saved property of the flight and sends a request to server to save flight data once user clicks the save button.
   const handleSaveFlight = async (flight) => {
     if (!user) {
       setShowAuthPopup(true);

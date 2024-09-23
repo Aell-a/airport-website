@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { XIcon } from "lucide-react";
 
+// AuthPopup comes out whenever user tries to login or performs any action that requires them to be signed in.
+
 export default function AuthPopup({ onClose, onLogin, onSignup }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
