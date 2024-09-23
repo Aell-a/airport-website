@@ -4,6 +4,7 @@ const axios = require("axios");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+// Search call recieves user input and sends them to Schiphol API in a formatted way. Response is sent back to front-end directly.
 router.get("/search", async (req, res) => {
   try {
     const response = await axios.get(
@@ -29,7 +30,7 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// Save a flight for a user
+// Verifying the user and saving the flight information under their User object.
 router.post("/save", async (req, res) => {
   try {
     const token = req.body.token;
@@ -51,6 +52,7 @@ router.post("/save", async (req, res) => {
   }
 });
 
+// Same logic but for unsaving instead.
 router.post("/unsave", async (req, res) => {
   try {
     const token = req.body.token;
@@ -76,6 +78,7 @@ router.post("/unsave", async (req, res) => {
   }
 });
 
+// A get call to recieve user's saved flights and return data back to front-end.
 router.get("/saved", async (req, res) => {
   try {
     const token = req.header("x-auth-token");

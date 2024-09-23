@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// Register call utilizes the jwt to encrypt user password and creates a new User in database.
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -32,6 +33,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// Checks user credentials to sign them into the website.
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -60,6 +62,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Authorization checker to compare localStorage token and user data to verify them.
 router.get("/user", async (req, res) => {
   try {
     const token = req.header("x-auth-token");
